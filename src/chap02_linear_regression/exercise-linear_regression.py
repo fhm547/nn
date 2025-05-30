@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
-
 # ## 说明
-# 
 # 请按照填空顺序编号分别完成 参数优化，不同基函数的实现
 
 import numpy as np
@@ -44,7 +42,7 @@ def multinomial_basis(x, feature_num=10):
     '''多项式基函数'''
     # 在 x 的最后一个维度上增加一个维度，将其转换为二维数组
     x = np.expand_dims(x, axis=1) # shape(N, 1)
-    #==========
+    
     #todo '''请实现多项式基函数'''
     # 在 x 的最后一个维度上增加一个维度，将其转换为三维数组
     # 通过列表推导式创建各次项，最后在列方向拼接合并
@@ -66,8 +64,6 @@ def gaussian_basis(x, feature_num=10):
     sigma = 25 / feature_num
     # 计算每个输入 x 对所有中心的响应，输出 shape (N, feature_num)
     return np.exp(-0.5 * ((x[:, np.newaxis] - centers) / sigma) ** 2)
-
-
 
 # ## 返回一个训练好的模型 填空顺序 1 用最小二乘法进行模型优化 
 # ## 填空顺序 3 用梯度下降进行模型优化
@@ -141,7 +137,6 @@ def main(x_train, y_train, use_gradient_descent=False):
     
     # 确保返回值为可迭代对象
     return f, w_lsq, w_gd
-
 
 # ## 评估结果 
 # > 没有需要填写的代码，但是建议读懂
