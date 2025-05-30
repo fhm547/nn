@@ -3,7 +3,6 @@
 
 import numpy as np
 
-
 def load_data(fname):
     """
     载入数据。
@@ -26,7 +25,6 @@ def eval_acc(label, pred):
     """
     return np.sum(label == pred) / len(pred)#准确率 = 正确预测的样本数 / 总样本数
 
-
 class SVM():
     """
     SVM模型。
@@ -34,8 +32,8 @@ class SVM():
     #目标函数：(1/2)||w||² + C * Σmax(0, 1 - y_i(w·x_i + b))
     def __init__(self):
         # 请补全此处代码
-        self.w = None  # 权重向量
-        self.b = 0     # 偏置项
+        self.w = None  # w: 权重向量(决定分类超平面的方向)
+        self.b = 0     # b: 偏置项(决定分类超平面的位置)
         pass
     
 
