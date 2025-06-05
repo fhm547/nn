@@ -7,8 +7,13 @@
 
 # In[19]:
 
+
+
+# 导入NumPy库，用于科学计算和数组操作
 import numpy as np
+# 导入TensorFlow库，用于机器学习和深度学习任务
 import tensorflow as tf
+# 导入 collections 模块，提供额外的容器类型如字典和列表
 import collections
 from tensorflow import keras
 from tensorflow.keras import layers
@@ -20,11 +25,16 @@ import os,sys,tqdm
 # 生成只包含[A-Z]的字符串，并且将encoder输入以及decoder输入以及decoder输出准备好（转成index）
 
 # In[20]:
+
+
+# 导入random模块，用于生成随机数和随机操作
 import random
+# 导入string模块，提供与字符串操作相关的常量和工具函数
 import string
 
 def randomString(stringLength):
     """Generate a random string with the combination of lowercase and uppercase letters """
+
 
     letters = string.ascii_uppercase
     return ''.join(random.choice(letters) for i in range(stringLength))
@@ -43,12 +53,17 @@ print(get_batch(2, 10))
 # 完成两空，模型搭建以及单步解码逻辑
 
 # In[26]:
+
 #定义了一个自定义的序列到序列（Seq2Seq）模型类mySeq2SeqModel，继承自keras.Model
+
+# 定义了一个名为 mySeq2SeqModel 的类，继承自 keras.Model
+#调用父类 keras.Model 的初始化方法
+
 class mySeq2SeqModel(keras.Model):
     def __init__(self):
         super(mySeq2SeqModel, self).__init__()
-        self.v_sz = 27
-        self.hidden = 128
+        self.v_sz=27 # 词汇表大小（包括可能的特殊符号）
+        self.hidden = 128 # 隐藏层维度/RNN单元的大小
         self.embed_layer = tf.keras.layers.Embedding(self.v_sz, 64, 
                                                     batch_input_shape=[None, None])
         
@@ -71,24 +86,8 @@ class mySeq2SeqModel(keras.Model):
         完成带attention机制的 sequence2sequence 模型的搭建，模块已经在`__init__`函数中定义好，
         用双线性attention，或者自己改一下`__init__`函数做加性attention
         '''
-        enc_emb = self.embed_layer(enc_ids)
-        enc_outputs, enc_state = self.encoder(enc_emb)
-        
-        # Decoder
-        dec_emb = self.embed_layer(dec_ids)
-        dec_outputs, _ = self.decoder(dec_emb, initial_state=enc_state)
-        
-        # Attention
-        scores = tf.matmul(dec_outputs, enc_outputs, transpose_b=True)
-        attn_weights = tf.nn.softmax(scores, axis=-1)
-        context = tf.matmul(attn_weights, enc_outputs)
-        combined = tf.concat([dec_outputs, context], axis=-1)
-        
-        # Generate logits
-        attn_output = self.dense_attn(combined)
-        logits = self.dense(attn_output)
         return logits
-       
+    
     
     @tf.function
     def encode(self, enc_ids):
@@ -104,28 +103,10 @@ class mySeq2SeqModel(keras.Model):
         '''
         todo
         参考sequence_reversal-exercise, 自己构建单步解码逻辑'''
-        emb_x = self.embed_layer(x)
-        
-        # RNN step
-        output, new_state = self.decoder_cell(emb_x, state)
-        
-        # Attention
-        output_expanded = tf.expand_dims(output, 1)
-        scores = tf.matmul(output_expanded, enc_out, transpose_b=True)
-        scores = tf.squeeze(scores, axis=1)
-        attn_weights = tf.nn.softmax(scores, axis=1)
-        context = tf.matmul(tf.expand_dims(attn_weights, 1), enc_out)
-        context = tf.squeeze(context, axis=1)
-        
-        # Combine and predict
-        combined = tf.concat([output, context], axis=-1)
-        attn_output = self.dense_attn(combined)
-        logits = self.dense(attn_output)
-        return tf.argmax(logits, axis=-1, output_type=tf.int32), new_state
+        return out, state
 
 
 # # Loss函数以及训练逻辑
-
 # In[27]:
 
 @tf.function
@@ -158,20 +139,20 @@ def train(model, optimizer, seqlen):
 
 
 # # 训练迭代
-
 # In[28]:
 
 
+# 创建Adam优化器实例，设置学习率为0.0005
 optimizer = optimizers.Adam(0.0005)
+# 实例化自定义的序列到序列模型
 model = mySeq2SeqModel()
+# 调用训练函数，传入模型、优化器和序列长度参数
 train(model, optimizer, seqlen=20)
 
 
 # # 测试模型逆置能力
 # 首先要先对输入的一个字符串进行encode，然后在用decoder解码出逆置的字符串
-# 
 # 测试阶段跟训练阶段的区别在于，在训练的时候decoder的输入是给定的，而在预测的时候我们需要一步步生成下一步的decoder的输入
-
 # In[30]:
 
 def sequence_reversal():
